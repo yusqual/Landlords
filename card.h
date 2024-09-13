@@ -1,15 +1,17 @@
 #ifndef CARD_H
 #define CARD_H
 
+#include <QVector>
+
 class Card {
 public:
     // 花色
     enum CardSuit {
         Suit_Begin,
         Diamond, // 方块
-        Club, // 梅花
-        Heart, // 红桃
-        Spade, // 黑桃
+        Club,    // 梅花
+        Heart,   // 红桃
+        Spade,   // 黑桃
         Suit_End
     };
     // 点数
@@ -36,14 +38,23 @@ public:
     Card();
 
     // Getter Setter
-    inline void setPoint(CardPoint point) { m_point = point(); }
-    inline void setSuit(CardSuit suit) { m_suit = suit(); }
-    inline CardPoint point() { return m_point; }
-    inline CardSuit suit() { return m_suit; }
+    inline void setPoint(CardPoint point) { m_point = point; }
+    inline void setSuit(CardSuit suit) { m_suit = suit; }
+    inline CardPoint point() const { return m_point; }
+    inline CardSuit suit() const { return m_suit; }
 
 private:
     CardPoint m_point;
     CardSuit m_suit;
 };
+
+// 定义类型的别名
+using CardList = QVector<Card>;
+
+// 操作符重载==
+bool operator==(const Card& left, const Card& right);
+
+// 重写全局函数 qHash
+uint qHash(const Card& card);
 
 #endif // CARD_H
