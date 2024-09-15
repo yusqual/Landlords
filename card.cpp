@@ -1,12 +1,9 @@
 #include "card.h"
 
-Card::Card() {
-}
+Card::Card() {}
 
-bool operator==(const Card& left, const Card& right) {
-    return (left.point() == right.point() && left.suit() == right.suit());
-}
+Card::Card(CardPoint point, CardSuit suit) : m_point(point), m_suit(suit) {}
 
-uint qHash(const Card& card) {
-    return card.point() * 100 + card.suit();
-}
+bool operator==(const Card& left, const Card& right) { return (left.point() == right.point() && left.suit() == right.suit()); }
+
+uint qHash(const Card& card) { return card.point() * 100 + card.suit(); }

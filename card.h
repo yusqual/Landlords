@@ -36,6 +36,7 @@ public:
     };
 
     Card();
+    Card(CardPoint point, CardSuit suit);
 
     // Getter Setter
     inline void setPoint(CardPoint point) { m_point = point; }
