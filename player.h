@@ -9,7 +9,7 @@ class Player : public QObject {
 public:
     enum Role { Lord, Farmer };        // 角色
     enum Sex { Man, Woman };           // 性别
-    enum Direction { Letf, Right };    // 头像显示方位
+    enum Direction { Left, Right };    // 头像显示方位
     enum Type { Robot, User, Unknow }; // 玩家类型
 
     explicit Player(QObject* parent = nullptr);
@@ -51,7 +51,7 @@ public:
     // 查看拥有的牌
     inline Cards getCards() { return m_cards; }
     // 清空玩家手中所有的牌
-    inline clearCards() { m_cards.clear(); }
+    inline void clearCards() { m_cards.clear(); }
     // 出牌
     inline void playHand(Cards& cards) { m_cards.remove(cards); }
     // 设置出牌的玩家以及待处理的牌
