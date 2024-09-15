@@ -7,11 +7,7 @@
 
 class Cards {
 public:
-    enum SortType {
-        Asc,
-        Desc,
-        NoSort
-    };
+    enum SortType { Asc, Desc, NoSort };
     Cards();
 
     // 添加扑克牌
@@ -39,8 +35,8 @@ public:
     // 指定点数的牌的数量
     int pointCount(Card::CardPoint point);
     // 某张牌是否在集合中
-    bool contains(const Card& card) { return m_cards.contains(card); }
-    bool contains(const Cards& cards) { return m_cards.contains(cards.m_cards); }
+    inline bool contains(const Card& card) { return m_cards.contains(card); }
+    inline bool contains(const Cards& cards) { return m_cards.contains(cards.m_cards); }
 
     // 随机取出一张牌
     Card takeRandomCard();
