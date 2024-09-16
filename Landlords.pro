@@ -15,8 +15,10 @@ SOURCES += \
     gamecontrol.cpp \
     main.cpp \
     gamepanel.cpp \
+    mybutton.cpp \
     player.cpp \
     robot.cpp \
+    scorepanel.cpp \
     userplayer.cpp
 
 HEADERS += \
@@ -25,12 +27,15 @@ HEADERS += \
     cards.h \
     gamecontrol.h \
     gamepanel.h \
+    mybutton.h \
     player.h \
     robot.h \
+    scorepanel.h \
     userplayer.h
 
 FORMS += \
-    gamepanel.ui
+    gamepanel.ui \
+    scorepanel.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
