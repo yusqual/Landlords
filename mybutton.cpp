@@ -1,5 +1,6 @@
 #include "mybutton.h"
 
+#include <QMouseEvent>
 #include <QPainter>
 
 MyButton::MyButton(QWidget* parent) : QPushButton{parent} {}
