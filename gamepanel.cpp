@@ -26,6 +26,12 @@ GamePanel::GamePanel(QWidget* parent) : QMainWindow(parent), ui(new Ui::GamePane
     initButtonGroup();
     // 7. 初始化玩家在窗口中的上下文环境
     initPlayerContext();
+    // 8. 扑克牌场景初始化
+    initGameScene();
+
+    // 定时器实例化
+    m_timer = new QTimer(this);
+    connect(m_timer, &QTimer::timeout, this, &GamePanel::onDispatchCard);
 }
 
 GamePanel::~GamePanel() { delete ui; }
@@ -78,7 +84,14 @@ void GamePanel::initButtonGroup() {
 
     ui->btnGroup->initButtons();
     ui->btnGroup->selectPage(ButtonGroup::Start);
-    connect(ui->btnGroup, &ButtonGroup::startGame, this, [=]() {});
+    connect(ui->btnGroup, &ButtonGroup::startGame, this, [=]() {
+        // 界面的初始化
+        ui->btnGroup->selectPage(ButtonGroup::Empty); // 隐藏按钮组
+        m_gameCtl->clearPlayerScore();                // 清空玩家得分
+        updatePlayerScore();                          // 更新玩家得分
+        // 修改游戏状态 - > 发牌
+        gameStatusProcess(GameControl::DispatchCard);
+    });
     connect(ui->btnGroup, &ButtonGroup::playHand, this, [=]() {});
     connect(ui->btnGroup, &ButtonGroup::pass, this, [=]() {});
     connect(ui->btnGroup, &ButtonGroup::betPoint, this, [=]() {});
@@ -127,6 +140,126 @@ void GamePanel::initPlayerContext() {
         context.roleImg->move(roleImgPos[i]);
         m_contextMap.insert(m_playerList[i], context);
     }
+}
+
+void GamePanel::initGameScene() {
+    // 1. 发牌区的扑克牌
+    m_baseCard = new CardPanel(this);
+    m_baseCard->setImage(m_cardBackImg, m_cardBackImg);
+    // 2. 发牌过程中移动的扑克牌
+    m_moveCard = new CardPanel(this);
+    m_moveCard->setImage(m_cardBackImg, m_cardBackImg);
+    // 3.最后的三张底牌(用于窗口的显示)
+    for (int i = 0; i < 3; ++i) {
+        CardPanel* panel = new CardPanel(this);
+        panel->setImage(m_cardBackImg, m_cardBackImg);
+        m_last3Card.push_back(panel);
+        panel->hide();
+    }
+    // 扑克牌的位置
+    m_baseCardPos = QPoint((width() - m_cardSize.width()) / 2, (height() - m_cardSize.height()) / 2 - 100);
+    m_baseCard->move(m_baseCardPos);
+    m_moveCard->move(m_baseCardPos);
+
+    int base = (width() - 3 * m_cardSize.width() - 2 * 10) / 2;
+    for (int i = 0; i < 3; ++i) {
+        m_last3Card[i]->move(base + (m_cardSize.width() + 10) * i, 20);
+    }
+}
+
+void GamePanel::gameStatusProcess(GameControl::GameStatus status) {
+    // 记录游戏状态
+    m_gameStatus = status;
+    // 处理游戏状态
+    switch (status) {
+    case GameControl::DispatchCard:
+        startDispatchCard();
+        break;
+    case GameControl::CallingLord:
+        break;
+    case GameControl::PlayingHand:
+        break;
+    default:
+        break;
+    }
+}
+
+void GamePanel::startDispatchCard() {
+    // 重置每张卡牌属性
+    for (auto it = m_cardMap.begin(); it != m_cardMap.end(); ++it) {
+        it.value()->setSelected(false);
+        it.value()->setFrontSide(true);
+        it.value()->hide();
+    }
+    // 隐藏三张底牌
+    for (int i = 0; i < m_last3Card.size(); ++i) {
+        m_last3Card.at(i)->hide();
+    }
+    // 重置玩家的窗口上下文信息
+    int index = m_playerList.indexOf(m_gameCtl->getUserPlayer());
+    for (int i = 0; i < m_playerList.size(); ++i) {
+        m_contextMap[m_playerList.at(i)].lastCards.clear();
+        m_contextMap[m_playerList.at(i)].info->clear();
+        m_contextMap[m_playerList.at(i)].roleImg->hide();
+        m_contextMap[m_playerList.at(i)].isFrontSide = i == index ? true : false;
+    }
+    // 重置所有玩家的卡牌数据
+    m_gameCtl->resetCardData();
+    // 显示底牌
+    m_baseCard->show();
+    // 隐藏按钮面板
+    ui->btnGroup->selectPage(ButtonGroup::Empty);
+    // 启动定时器
+    m_timer->start(10);
+    // 播放背景音乐
+}
+
+void GamePanel::cardMoveStep(Player* player, int curPos) {
+    // 得到每个玩家扑克牌的展示区域
+    QRect cardRect = m_contextMap[player].cardRect;
+    // 每个玩家的单元步长
+    const int unit[] = {(m_baseCardPos.x() - cardRect.right()) / 100, (cardRect.left() - m_baseCardPos.x()) / 100, (cardRect.top() - m_baseCardPos.y()) / 100};
+    // 每次窗口移动的时候每个玩家对应的牌的时时坐标位置
+    const QPoint pos[] = {
+        QPoint(m_baseCardPos.x() - curPos * unit[0], m_baseCardPos.y()),
+        QPoint(m_baseCardPos.x() + curPos * unit[1], m_baseCardPos.y()),
+        QPoint(m_baseCardPos.x(), m_baseCardPos.y() + curPos * unit[2]),
+    };
+    // 移动扑克牌窗口
+    int index = m_playerList.indexOf(player);
+    m_moveCard->move(pos[index]);
+    // 临界状态处理
+    if (curPos == 0)
+        m_moveCard->show();
+    if (curPos == 100)
+        m_moveCard->hide();
+}
+
+void GamePanel::onDispatchCard() {
+    // 记录扑克牌的位置
+    static int curMovePos = 0;
+    // 当前玩家
+    Player* curPlayer = m_gameCtl->getCurrPlayer();
+    if (curMovePos >= 100) {
+        // 给玩家发一张牌
+        Card card = m_gameCtl->takeOneCard();
+        curPlayer->storeDispatchCard(card);
+        // 切换玩家
+        m_gameCtl->setCurrPlayer(curPlayer->getNextPlayer());
+        curMovePos = 0;
+        // 发牌动画
+        // cardMoveStep(curPlayer, curMovePos);
+        // 判断牌是否发完
+        if (m_gameCtl->getSurplusCards().cardCount() == 3) {
+            // 终止定时器
+            m_timer->stop();
+            // 切换游戏状态
+            gameStatusProcess(GameControl::CallingLord);
+        }
+    }
+    // 移动扑克牌
+    cardMoveStep(curPlayer, curMovePos);
+    curMovePos += 15;
 }
 
 void GamePanel::paintEvent(QPaintEvent* event) {

@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QMainWindow>
 #include <QMap>
+#include <QTimer>
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class GamePanel;
@@ -25,6 +26,12 @@ public:
     void cropImage(QPixmap& pix, int x, int y, Card& c); // 裁剪图片
     void initButtonGroup();                              // 初始化游戏按钮组
     void initPlayerContext();
+    void initGameScene();
+    void gameStatusProcess(GameControl::GameStatus status); // 修改游戏状态
+    void startDispatchCard();                               // 发牌
+    void cardMoveStep(Player* player, int curPos);          // 移动扑克牌
+
+    void onDispatchCard(); // 定时器的处理动作
 
 private:
     enum CardAlign { Horizontal, Vertical };
@@ -52,6 +59,13 @@ private:
     QSize m_cardSize;
     QPixmap m_cardBackImg;
     QMap<Player*, PlayerContext> m_contextMap;
+    CardPanel* m_baseCard;
+    CardPanel* m_moveCard;
+    QVector<CardPanel*> m_last3Card;
+    QPoint m_baseCardPos;
+    GameControl::GameStatus m_gameStatus;
+    QTimer* m_timer;
+
     // QWidget interface
 protected:
     void paintEvent(QPaintEvent* event);
