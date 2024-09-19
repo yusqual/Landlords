@@ -18,6 +18,7 @@ SOURCES += \
     gamepanel.cpp \
     mybutton.cpp \
     player.cpp \
+    playhand.cpp \
     robot.cpp \
     scorepanel.cpp \
     userplayer.cpp
@@ -31,6 +32,7 @@ HEADERS += \
     gamepanel.h \
     mybutton.h \
     player.h \
+    playhand.h \
     robot.h \
     scorepanel.h \
     userplayer.h
