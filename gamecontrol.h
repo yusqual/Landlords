@@ -59,6 +59,7 @@ public:
     // 处理出牌
 
 signals:
+    void playerStatusChanged(Player* player, PlayerStatus status); // 通知主窗口玩家状态发生变化
 
 private:
     Robot* m_robotLeft;

@@ -54,7 +54,10 @@ void GameControl::resetCardData() {
     m_pendCards.clear();
 }
 
-void GameControl::startLordCard() { m_currPlayer->prepareCallLord(); }
+void GameControl::startLordCard() {
+    m_currPlayer->prepareCallLord();
+    emit playerStatusChanged(m_currPlayer, ThinkingForCallLord);
+}
 
 void GameControl::becomeLord(Player* player) {
     player->setRole(Player::Lord);

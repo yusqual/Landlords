@@ -41,6 +41,7 @@ void GamePanel::gameControlInit() {
     m_gameCtl->playerInit(); // 创建游戏玩家对象
     // 得到三个玩家的实例对象, 左 右 玩家
     m_playerList << m_gameCtl->getLeftRobot() << m_gameCtl->getRightRobot() << m_gameCtl->getUserPlayer();
+    connect(m_gameCtl, &GameControl::playerStatusChanged, this, &GamePanel::onPlayerStatusChanged);
 }
 
 void GamePanel::updatePlayerScore() { ui->scorePanel->setScores(m_playerList[0]->getScore(), m_playerList[1]->getScore(), m_playerList[2]->getScore()); }
@@ -175,8 +176,19 @@ void GamePanel::gameStatusProcess(GameControl::GameStatus status) {
     case GameControl::DispatchCard:
         startDispatchCard();
         break;
-    case GameControl::CallingLord:
+    case GameControl::CallingLord: {
+        // 取出底牌数据
+        CardList last3Card = m_gameCtl->getSurplusCards().toCardList();
+        // 给底牌窗口设置图片
+        for (int i = 0; i < last3Card.size(); ++i) {
+            QPixmap front = m_cardMap[last3Card.at(i)]->getImage();
+            m_last3Card[i]->setImage(front, m_cardBackImg);
+            m_last3Card[i]->hide();
+        }
+        // 开始叫地主
+        m_gameCtl->startLordCard();
         break;
+    }
     case GameControl::PlayingHand:
         break;
     default:
@@ -235,6 +247,43 @@ void GamePanel::cardMoveStep(Player* player, int curPos) {
         m_moveCard->hide();
 }
 
+void GamePanel::disposCard(Player* player, Cards& cards) {
+    CardList list = cards.toCardList();
+    for (int i = 0; i < list.size(); ++i) {
+        CardPanel* panel = m_cardMap[list.at(i)];
+        panel->setOwner(player);
+    }
+    // 更新扑克牌在窗口中的显示
+    updatePlayerCards(player);
+}
+
+void GamePanel::updatePlayerCards(Player* player) {
+    Cards cards = player->getCards();
+    CardList list = cards.toCardList();
+    // 取出展示扑克牌的区域
+    int cardSpace = 20;
+    QRect cardsRect = m_contextMap[player].cardRect;
+    for (int i = 0; i < list.size(); ++i) {
+        CardPanel* panel = m_cardMap[list.at(i)];
+        panel->show();
+        panel->raise();
+        panel->setFrontSide(m_contextMap[player].isFrontSide);
+        // 水平or垂直显示
+        if (m_contextMap[player].align == Horizontal) {
+            int leftX = cardsRect.left() + (cardsRect.width() - (list.size() - 1) * cardSpace - panel->width()) / 2;
+            int topY = cardsRect.top() + (cardsRect.height() - m_cardSize.height()) / 2;
+            if (panel->isSelected()) {
+                topY -= 10;
+            }
+            panel->move(leftX + cardSpace * i, topY);
+        } else {
+            int leftX = cardsRect.left() + (cardsRect.width() - m_cardSize.width()) / 2;
+            int topY = cardsRect.top() + (cardsRect.height() - (list.size() - 1) * cardSpace - panel->height()) / 2;
+            panel->move(leftX, topY + i * cardSpace);
+        }
+    }
+}
+
 void GamePanel::onDispatchCard() {
     // 记录扑克牌的位置
     static int curMovePos = 0;
@@ -244,22 +293,41 @@ void GamePanel::onDispatchCard() {
         // 给玩家发一张牌
         Card card = m_gameCtl->takeOneCard();
         curPlayer->storeDispatchCard(card);
+        Cards cs(card);
+        disposCard(curPlayer, cs);
         // 切换玩家
         m_gameCtl->setCurrPlayer(curPlayer->getNextPlayer());
         curMovePos = 0;
         // 发牌动画
-        // cardMoveStep(curPlayer, curMovePos);
+        cardMoveStep(curPlayer, curMovePos);
         // 判断牌是否发完
         if (m_gameCtl->getSurplusCards().cardCount() == 3) {
             // 终止定时器
             m_timer->stop();
             // 切换游戏状态
             gameStatusProcess(GameControl::CallingLord);
+            return;
         }
     }
     // 移动扑克牌
     cardMoveStep(curPlayer, curMovePos);
     curMovePos += 15;
+}
+
+void GamePanel::onPlayerStatusChanged(Player* player, GameControl::PlayerStatus status) {
+    switch (status) {
+    case GameControl::ThinkingForCallLord:
+        if (player == m_gameCtl->getUserPlayer()) {
+            ui->btnGroup->selectPage(ButtonGroup::CallLord);
+        }
+        break;
+    case GameControl::ThinkingForPlayHand:
+        break;
+    case GameControl::Winning:
+        break;
+    default:
+        break;
+    }
 }
 
 void GamePanel::paintEvent(QPaintEvent* event) {
