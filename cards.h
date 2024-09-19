@@ -9,6 +9,7 @@ class Cards {
 public:
     enum SortType { Asc, Desc, NoSort };
     Cards();
+    Cards(const Card& card);
 
     // 添加扑克牌
     inline void add(const Card& card) { m_cards.insert(card); }
