@@ -35,6 +35,7 @@ public:
 
     void onDispatchCard();                                                        // 定时器的处理动作
     void onPlayerStatusChanged(Player* player, GameControl::PlayerStatus status); // 处理玩家状态的变化
+    void onGrabLordBet(Player* player, int bet, bool isFirst);                    // 处理玩家抢地主
 
 private:
     enum CardAlign { Horizontal, Vertical };

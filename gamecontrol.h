@@ -5,6 +5,18 @@
 #include "userplayer.h"
 #include <QObject>
 
+struct BetRecord {
+    BetRecord() { reset(); }
+    void reset() {
+        player = nullptr;
+        bet = 0;
+        times = 0;
+    }
+    Player* player;
+    int bet;
+    int times; // 第几次叫地主
+};
+
 class GameControl : public QObject {
     Q_OBJECT
 public:
@@ -54,12 +66,17 @@ public:
     // 清空所有玩家的得分
     void clearPlayerScore();
 
-    // 处理叫地主
+    // 得到玩家下注的最高分数
+    inline int getPlayerMaxBet() { return m_betRecord.bet; }
 
+    // 处理叫地主
+    void onGrabBet(Player* player, int bet);
     // 处理出牌
 
 signals:
     void playerStatusChanged(Player* player, PlayerStatus status); // 通知主窗口玩家状态发生变化
+    void notifyGrabLordBet(Player* player, int bet, bool isFirst); // 通知玩家抢地主了
+    void gameStatusChanged(GameStatus status);                     // 游戏状态发生变化
 
 private:
     Robot* m_robotLeft;
@@ -69,6 +86,7 @@ private:
     Player* m_pendPlayer;
     Cards m_pendCards;
     Cards m_allCards;
+    BetRecord m_betRecord;
 };
 
 #endif // GAMECONTROL_H

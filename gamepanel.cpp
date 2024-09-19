@@ -42,6 +42,7 @@ void GamePanel::gameControlInit() {
     // 得到三个玩家的实例对象, 左 右 玩家
     m_playerList << m_gameCtl->getLeftRobot() << m_gameCtl->getRightRobot() << m_gameCtl->getUserPlayer();
     connect(m_gameCtl, &GameControl::playerStatusChanged, this, &GamePanel::onPlayerStatusChanged);
+    connect(m_gameCtl, &GameControl::notifyGrabLordBet, this, &GamePanel::onGrabLordBet);
 }
 
 void GamePanel::updatePlayerScore() { ui->scorePanel->setScores(m_playerList[0]->getScore(), m_playerList[1]->getScore(), m_playerList[2]->getScore()); }
@@ -95,7 +96,7 @@ void GamePanel::initButtonGroup() {
     });
     connect(ui->btnGroup, &ButtonGroup::playHand, this, [=]() {});
     connect(ui->btnGroup, &ButtonGroup::pass, this, [=]() {});
-    connect(ui->btnGroup, &ButtonGroup::betPoint, this, [=]() {});
+    connect(ui->btnGroup, &ButtonGroup::betPoint, this, [=](int bet) { m_gameCtl->getUserPlayer()->grabLordBet(bet); });
 }
 
 void GamePanel::initPlayerContext() {
@@ -318,7 +319,7 @@ void GamePanel::onPlayerStatusChanged(Player* player, GameControl::PlayerStatus 
     switch (status) {
     case GameControl::ThinkingForCallLord:
         if (player == m_gameCtl->getUserPlayer()) {
-            ui->btnGroup->selectPage(ButtonGroup::CallLord);
+            ui->btnGroup->selectPage(ButtonGroup::CallLord, m_gameCtl->getPlayerMaxBet());
         }
         break;
     case GameControl::ThinkingForPlayHand:
@@ -328,6 +329,22 @@ void GamePanel::onPlayerStatusChanged(Player* player, GameControl::PlayerStatus 
     default:
         break;
     }
+}
+
+void GamePanel::onGrabLordBet(Player* player, int bet, bool isFirst) {
+    // 显示抢地主的信息提示
+    PlayerContext context = m_contextMap[player];
+    if (bet == 0) {
+        context.info->setPixmap(QPixmap(":/images/buqinag.png"));
+    } else {
+        if (isFirst)
+            context.info->setPixmap(QPixmap(":/images/jiaodizhu.png"));
+        else
+            context.info->setPixmap(QPixmap(":/images/qiangdizhu.png"));
+    }
+    context.info->show();
+    // 显示叫地主的分数
+    // 播放分数的背景音乐
 }
 
 void GamePanel::paintEvent(QPaintEvent* event) {
