@@ -31,4 +31,19 @@ void ButtonGroup::initButtons() {
     connect(ui->threeScoreBtn, &MyButton::clicked, this, [=]() { emit betPoint(3); });
 }
 
-void ButtonGroup::selectPage(Panel type) { ui->stackedWidget->setCurrentIndex(type); }
+void ButtonGroup::selectPage(Panel type, int bet) {
+    ui->stackedWidget->setCurrentIndex(type);
+    if (type != CallLord)
+        return;
+    // 叫地主玩家可选分数按钮
+    if (bet == 0) {
+        ui->oneScoreBtn->setVisible(true);
+        ui->twoScoreBtn->setVisible(true);
+        ui->threeScoreBtn->setVisible(true);
+    } else if (bet == 1) {
+        ui->twoScoreBtn->setVisible(true);
+        ui->threeScoreBtn->setVisible(true);
+    } else if (bet == 2) {
+        ui->threeScoreBtn->setVisible(true);
+    }
+}
