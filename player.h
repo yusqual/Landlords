@@ -66,6 +66,7 @@ public:
     virtual void preparePlayHand(); // 准备抢地主
 
 signals:
+    void notifyGrabLordBet(Player* player, int bet); // 通知已经叫地主下注
 
 protected:
     QString m_name;
