@@ -21,6 +21,7 @@ SOURCES += \
     playhand.cpp \
     robot.cpp \
     scorepanel.cpp \
+    strategy.cpp \
     userplayer.cpp
 
 HEADERS += \
@@ -35,6 +36,7 @@ HEADERS += \
     playhand.h \
     robot.h \
     scorepanel.h \
+    strategy.h \
     userplayer.h
 
 FORMS += \
