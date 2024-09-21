@@ -17,6 +17,7 @@ public:
     // 删除扑克牌
     inline void remove(Card& card) { m_cards.remove(card); }
     inline void remove(Cards& cards) { m_cards.subtract(cards.m_cards); }
+    void remove(QVector<Cards>& cards);
 
     // 一次性插入多个数据 (操作符重载<<)
     Cards& operator<<(const Card& card);

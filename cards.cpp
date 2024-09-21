@@ -6,6 +6,11 @@ Cards::Cards() {}
 
 Cards::Cards(const Card& card) { add(card); }
 
+void Cards::remove(QVector<Cards>& cards) {
+    for (auto i : cards)
+        remove(i);
+}
+
 Cards& Cards::operator<<(const Card& card) {
     add(card);
     return *this;
