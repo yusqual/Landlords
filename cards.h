@@ -14,10 +14,11 @@ public:
     // 添加扑克牌
     inline void add(const Card& card) { m_cards.insert(card); }
     inline void add(const Cards& cards) { m_cards.unite(cards.m_cards); }
+    void add(const QVector<Cards>& cards);
     // 删除扑克牌
-    inline void remove(Card& card) { m_cards.remove(card); }
-    inline void remove(Cards& cards) { m_cards.subtract(cards.m_cards); }
-    void remove(QVector<Cards>& cards);
+    inline void remove(const Card& card) { m_cards.remove(card); }
+    inline void remove(const Cards& cards) { m_cards.subtract(cards.m_cards); }
+    void remove(const QVector<Cards>& cards);
 
     // 一次性插入多个数据 (操作符重载<<)
     Cards& operator<<(const Card& card);

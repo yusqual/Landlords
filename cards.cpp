@@ -6,7 +6,13 @@ Cards::Cards() {}
 
 Cards::Cards(const Card& card) { add(card); }
 
-void Cards::remove(QVector<Cards>& cards) {
+void Cards::add(const QVector<Cards>& cards) {
+    for (int i = 0; i < cards.count(); ++i) {
+        add(cards.at(i));
+    }
+}
+
+void Cards::remove(const QVector<Cards>& cards) {
     for (auto i : cards)
         remove(i);
 }
