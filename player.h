@@ -20,7 +20,7 @@ public:
     inline QString getName() { return m_name; }
     // 角色
     inline void setRole(Role role) { m_role = role; }
-    inline Role gerRole() { return m_role; }
+    inline Role getRole() { return m_role; }
     // 性别
     inline void setSex(Sex sex) { m_sex = sex; }
     inline Sex getSex() { return m_sex; }
