@@ -64,6 +64,7 @@ public:
 
     virtual void prepareCallLord(); // 准备叫地主
     virtual void preparePlayHand(); // 准备抢地主
+    virtual void thinkCallLord();
 
 signals:
     void notifyGrabLordBet(Player* player, int bet); // 通知已经叫地主下注

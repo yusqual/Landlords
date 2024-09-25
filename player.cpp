@@ -9,3 +9,5 @@ void Player::grabLordBet(int point) { emit notifyGrabLordBet(this, point); }
 void Player::prepareCallLord() {}
 
 void Player::preparePlayHand() {}
+
+void Player::thinkCallLord() {}
