@@ -29,17 +29,20 @@ public:
     void initButtonGroup();                              // 初始化游戏按钮组
     void initPlayerContext();
     void initGameScene();
-    void gameStatusProcess(GameControl::GameStatus status); // 修改游戏状态
-    void startDispatchCard();                               // 发牌
-    void cardMoveStep(Player* player, int curPos);          // 移动扑克牌
-    void disposCard(Player* player, Cards& cards);          // 处理分发得到的扑克牌
-    void updatePlayerCards(Player* player);                 // 更新扑克牌在窗口中的显示
+    void gameStatusProcess(GameControl::GameStatus status);                              // 修改游戏状态
+    void startDispatchCard();                                                            // 发牌
+    void cardMoveStep(Player* player, int curPos);                                       // 移动扑克牌
+    void disposCard(Player* player, Cards& cards);                                       // 处理分发得到的扑克牌
+    void updatePlayerCards(Player* player);                                              // 更新扑克牌在窗口中的显示
+    QPixmap loadRoleImage(Player::Sex sex, Player::Direction direct, Player::Role role); // 加载玩家头像
 
     void onDispatchCard();                                                        // 定时器的处理动作
     void onPlayerStatusChanged(Player* player, GameControl::PlayerStatus status); // 处理玩家状态的变化
     void onGrabLordBet(Player* player, int bet, bool isFirst);                    // 处理玩家抢地主
+    void onDisPosePlayHand(Player* player, Cards& cards);                         // 处理玩家的出牌
 
     void showAnimation(AnimationType type, int bet = 0); // 显示特效动画
+    void hidePlayerDropCards(Player* player);
 
 private:
     enum CardAlign { Horizontal, Vertical };

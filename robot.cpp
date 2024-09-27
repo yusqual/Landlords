@@ -1,5 +1,6 @@
 #include "robot.h"
 #include "robotgraplord.h"
+#include "robotplayhand.h"
 #include "strategy.h"
 
 Robot::Robot(QObject* parent) : Player{parent} { m_type = Player::Type::Robot; }
@@ -9,7 +10,10 @@ void Robot::prepareCallLord() {
     subThread->start();
 }
 
-void Robot::preparePlayHand() {}
+void Robot::preparePlayHand() {
+    RobotPlayHand* subThread = new RobotPlayHand(this);
+    subThread->start();
+}
 
 void Robot::thinkCallLord() {
     // 基于权重和判断是否叫地主
@@ -42,4 +46,10 @@ void Robot::thinkCallLord() {
     } else {
         grabLordBet(0);
     }
+}
+
+void Robot::thinkPlayHand() {
+    Strategy st(this, m_cards);
+    Cards cs = st.makeStrategy();
+    playHand(cs);
 }

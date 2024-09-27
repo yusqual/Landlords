@@ -15,6 +15,7 @@ public:
     void prepareCallLord() override;
     void preparePlayHand() override;
     void thinkCallLord() override; // 考虑叫地主
+    void thinkPlayHand() override;
 };
 
 #endif // ROBOT_H
