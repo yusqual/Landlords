@@ -53,7 +53,10 @@ public:
     // 清空玩家手中所有的牌
     inline void clearCards() { m_cards.clear(); }
     // 出牌
-    inline void playHand(Cards& cards) { m_cards.remove(cards); }
+    inline void playHand(Cards& cards) {
+        m_cards.remove(cards);
+        emit notifyPlayHand(this, cards);
+    }
     // 设置出牌的玩家以及待处理的牌
     inline void setPendingInfo(Player* player, Cards& cards) {
         m_pendPlayer = player;
@@ -62,12 +65,17 @@ public:
     inline Player* getPendPlayer() { return m_pendPlayer; }
     inline Cards getPendCards() { return m_pendCards; }
 
+    // 存储出牌玩家对象和打出的牌
+    void storePendingInfo(Player* player, Cards& cards);
+
     virtual void prepareCallLord(); // 准备叫地主
     virtual void preparePlayHand(); // 准备抢地主
     virtual void thinkCallLord();
+    virtual void thinkPlayHand();
 
 signals:
-    void notifyGrabLordBet(Player* player, int bet); // 通知已经叫地主下注
+    void notifyGrabLordBet(Player* player, int bet);  // 通知已经叫地主下注
+    void notifyPlayHand(Player* player, Cards& card); // 通知已经出牌
 
 protected:
     QString m_name;
